@@ -4,8 +4,30 @@ import time
 import random
 from zhipuai import ZhipuAI  # 导入智谱AI客户端
 
+def _load_local_secrets():
+    """从本地私密配置文件读取密钥，不纳入版本控制。"""
+    secrets_path = os.path.join(os.path.dirname(__file__), "secrets.local.json")
+    if not os.path.exists(secrets_path):
+        return {}
+
+    try:
+        with open(secrets_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+    except Exception as e:
+        print(f"读取私密配置失败: {e}")
+    return {}
+
+
+def _resolve_zhipu_api_key():
+    # 优先环境变量，其次本地私密文件
+    secrets = _load_local_secrets()
+    return os.getenv("ZHIPUAI_API_KEY") or secrets.get("zhipuai_api_key", "")
+
+
 # 初始化智谱AI客户端
-zhipu_client = ZhipuAI(api_key="")
+zhipu_client = ZhipuAI(api_key=_resolve_zhipu_api_key())
 
 # 使用智谱AI获取响应
 def get_completion_from_messages(messages, model="glm-3-turbo", temperature=0):

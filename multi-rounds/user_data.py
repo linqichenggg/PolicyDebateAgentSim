@@ -1,11 +1,8 @@
 import pandas as pd
 
-
-# 从xlsx加载真实用户数据
 def load_real_users(file_path):
     '''从xlsx或csv文件加载真实用户数据，如果失败则直接报错'''
     try:
-        # 检查文件类型
         if file_path.endswith('.csv'):
             df = pd.read_csv(file_path)
         else:
@@ -17,7 +14,6 @@ def load_real_users(file_path):
         users = []
 
         for _, row in df.iterrows():
-            # 提取大五人格特质
             traits = {
                 "开放性": row["开放性"] if pd.notna(row["开放性"]) else "中",
                 "尽责性": row["尽责性"] if pd.notna(row["尽责性"]) else "中",
@@ -26,7 +22,6 @@ def load_real_users(file_path):
                 "神经质": row["神经质"] if pd.notna(row["神经质"]) else "中"
             }
 
-            # 创建用户数据字典
             user = {
                 "id": str(row["用户id"]) if pd.notna(row["用户id"]) else str(len(users)),
                 "name": row["用户名"] if pd.notna(row["用户名"]) else f"未命名用户{len(users)}",

@@ -33,16 +33,13 @@ if __name__ == "__main__":
                         help="每多少步保存一次检查点")
     args = parser.parse_args()
 
-    # 创建输出目录
     for i in range(args.no_of_runs):
         output_dir = f"output/run-{i+1}"
         os.makedirs(output_dir, exist_ok=True)
 
-    # 运行模型
     for i in range(args.no_of_runs):
         output_dir = f"output/run-{i+1}"
         
-        # 初始化模型
         model = World(
             args=args,
             initial_healthy=args.no_init_healthy,
@@ -50,30 +47,23 @@ if __name__ == "__main__":
             contact_rate=args.contact_rate
         )
         
-        # 设置多轮对话参数
         model.max_dialogue_turns = args.max_dialogue_turns
         model.dialogue_convergence_threshold = args.dialogue_convergence
         
-        # 运行模型
         model.run_model(checkpoint_path=output_dir, offset=args.offset)
         
-        # 获取模型数据
         model_data = model.datacollector.get_model_vars_dataframe()
         
-        # 确保数据行数正确
-        expected_rows = args.no_days + 1  # 初始状态 + 运行天数
+        expected_rows = args.no_days + 1  
         if len(model_data) > expected_rows:
             print(f"WARNING: 数据行数({len(model_data)})超过预期({expected_rows})，截断数据...")
             model_data = model_data.iloc[:expected_rows]
         
-        # 添加步骤列
         model_data['Step'] = range(len(model_data))
         
-        # 保存数据到CSV
         model_data.to_csv(f"{output_dir}/{args.name}-data.csv")
         print(f"数据已保存到 {output_dir}/{args.name}-data.csv")
         
-        # 打印最终状态
         final_state = model_data.iloc[-1]
         print("\n最终状态:")
         print(f"易感人群: {final_state['Susceptible']}")
@@ -81,7 +71,6 @@ if __name__ == "__main__":
         print(f"恢复人群: {final_state['Recovered']}")
         print(f"总人口: {final_state['Susceptible'] + final_state['Infected'] + final_state['Recovered']}")
         
-        # 绘制SIR模型图
         plt.figure(figsize=(10, 6))
         plt.plot(model_data['Step'], model_data['Susceptible'], 'b-', label='Susceptible')
         plt.plot(model_data['Step'], model_data['Infected'], 'r-', label='Infected')
@@ -94,11 +83,9 @@ if __name__ == "__main__":
         plt.savefig(f"{output_dir}/{args.name}-sir.png")
         plt.close()
         
-        # 保存对话数据
         if args.save_dialogues:
             model.save_dialogue_data(f"{output_dir}/{args.name}-dialogues.json")
         
-        # 保存代理人信念变化
         agent_beliefs = {
             "agents": []
         }
@@ -121,7 +108,6 @@ if __name__ == "__main__":
         
         print(f"代理人信念数据已保存到 {output_dir}/{args.name}-agent-beliefs.json")
         
-        # 在模型运行完成后保存行为日志
         if args.save_behaviors:
             behavior_path = f"{output_dir}/{args.name}-behaviors.json"
             model.save_agent_behavior_logs(behavior_path)

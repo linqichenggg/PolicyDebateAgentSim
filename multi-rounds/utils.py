@@ -8,14 +8,12 @@ from prompt import *
 
 def update_day(agent):
     '''更新代理人的健康状态'''
-    # 如果代理人相信谣言，则变为感染状态
     if agent.beliefs[-1] == 1 and agent.health_condition != "Infected":
         agent.health_condition = "Infected"
         agent.model.susceptible -= 1
         agent.model.infected += 1
         agent.model.daily_new_infected_cases += 1
     
-    # 如果代理人不再相信谣言，则变为恢复状态
     elif agent.beliefs[-1] == 0 and agent.health_condition == "Infected":
         agent.health_condition = "Recovered"
         agent.model.infected -= 1
@@ -28,47 +26,36 @@ def clear_cache():
     if os.path.exists(cache_dir):
         for file in os.listdir(cache_dir):
             os.remove(os.path.join(cache_dir, file))
-        print("缓存已清除")
+        print("Done")
 
-# 创建社交网络
-def create_social_network(agents, connection_probability=0.2):  # 降低默认连接概率
+def create_social_network(agents, connection_probability=0.2):
     G = nx.Graph()
     
-    # 添加节点
     for agent in agents:
         G.add_node(agent.unique_id)
     
-    # 添加边
     for i, agent1 in enumerate(agents):
-        # 限制每个代理人的最大连接数
-        max_connections = min(20, len(agents)//5)  # 每个代理人最多20个连接
+        max_connections = min(20, len(agents)//5)
         current_connections = 0
         
         for j, agent2 in enumerate(agents[i+1:], i+1):
-            # 如果已达最大连接数，跳过
             if current_connections >= max_connections:
                 break
                 
-            # 基础连接概率
             p = connection_probability
             
-            # 根据教育背景调整概率
             if agent1.qualification == agent2.qualification:
-                p += 0.1  # 教育背景相同的人更可能互动
+                p += 0.1 
             
-            # 确保概率在有效范围内
             p = max(0.05, min(0.9, p))
             
-            # 随机决定是否添加连接
             if random.random() < p:
-                # 添加边，权重表示连接强度
                 weight = random.uniform(0.5, 1.0)
                 G.add_edge(agent1.unique_id, agent2.unique_id, weight=weight)
                 current_connections += 1
     
     return G
 
-# 新增：对话状态类
 class DialogueState:
     '''管理对话状态的类'''
     def __init__(self, topic, agent1_id, agent2_id):
@@ -89,15 +76,12 @@ class DialogueState:
     
     def update_after_turn(self, agent_id, response_data):
         '''更新对话状态'''
-        # 更新轮次计数
         if agent_id == self.agent1_id:
-            self.turn_count += 0.5  # 半轮
+            self.turn_count += 0.5 
         
-        # 更新立场强度
         if "stance_strength" in response_data:
             self.stance_strength[agent_id] = response_data["stance_strength"]
         elif "internal_thoughts" in response_data:
-            # 根据内部想法估计立场强度
             thoughts = response_data["internal_thoughts"].lower()
             if "坚定" in thoughts or "确信" in thoughts:
                 self.stance_strength[agent_id] = 1.0
@@ -106,15 +90,12 @@ class DialogueState:
             elif "不相信" in thoughts or "反对" in thoughts:
                 self.stance_strength[agent_id] = -1.0
         
-        # 更新共同点
         if "common_ground" in response_data:
             self.common_ground = response_data["common_ground"]
         
-        # 更新信念变化
         if "belief_shift" in response_data:
             self.belief_shifts[agent_id] += response_data["belief_shift"]
 
-# 对话停止条件
 def should_stop_dialogue(dialogue_state, response1, response2, max_turns=3, convergence_threshold=0.1):
     '''判断对话是否应该停止'''
     # 检查最大轮次
