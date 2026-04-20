@@ -1,0 +1,284 @@
+{
+  "agents": [
+    {
+      "id": 0,
+      "name": "user_000",
+      "age": 71,
+      "initial_state": "Support",
+      "final_state": "Support",
+      "belief_history": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "opinion_history": [
+        "I support this position: Transition planning should start early to avoid future shocks.",
+        "I still support this position: Transition planning should start early to avoid future shocks.",
+        "I still support this position: Renewable investment can create domestic industry and resilience.",
+        "I still support this position: Distributed renewable systems can improve resilience during disasters."
+      ],
+      "dialogue_partners": {
+        "6": 1,
+        "3": 2
+      }
+    },
+    {
+      "id": 1,
+      "name": "user_001",
+      "age": 68,
+      "initial_state": "Support",
+      "final_state": "Changed",
+      "belief_history": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "opinion_history": [
+        "I support this position: Transition planning should start early to avoid future shocks.",
+        "I now oppose this position: Rapid nuclear phase-down risks supply instability and higher electricity prices.",
+        "I still oppose this position: I oppose aggressive reduction because energy security must remain central.",
+        "I still oppose this position: Energy policy should avoid abrupt structural moves that raise import dependence."
+      ],
+      "dialogue_partners": {
+        "8": 1,
+        "9": 1,
+        "6": 1
+      }
+    },
+    {
+      "id": 2,
+      "name": "user_002",
+      "age": 74,
+      "initial_state": "Support",
+      "final_state": "Changed",
+      "belief_history": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "opinion_history": [
+        "I support this position: Renewables and grid modernization should be accelerated now, not later.",
+        "I still support this position: I support the transition because social acceptance matters for energy legitimacy.",
+        "I still support this position: Public trust improves when energy strategy reduces high-consequence accident risk.",
+        "I now oppose this position: Industrial competitiveness may decline if power costs rise too quickly."
+      ],
+      "dialogue_partners": {
+        "7": 2,
+        "9": 1
+      }
+    },
+    {
+      "id": 3,
+      "name": "user_003",
+      "age": 83,
+      "initial_state": "Support",
+      "final_state": "Changed",
+      "belief_history": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "opinion_history": [
+        "I support this position: Energy transition reduces systemic risk from large centralized failures.",
+        "I now oppose this position: Grid stability risk is too high if dispatchable supply is reduced too quickly.",
+        "I still oppose this position: Rapid nuclear phase-down risks supply instability and higher electricity prices.",
+        "I still oppose this position: Transition should be gradual and technology-neutral."
+      ],
+      "dialogue_partners": {
+        "4": 1,
+        "0": 2
+      }
+    },
+    {
+      "id": 4,
+      "name": "user_004",
+      "age": 88,
+      "initial_state": "Support",
+      "final_state": "Support",
+      "belief_history": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "opinion_history": [
+        "I support this position: Transition planning should start early to avoid future shocks.",
+        "I still support this position: Transition planning should start early to avoid future shocks.",
+        "I still support this position: A phased reduction is feasible with storage, efficiency, and regional balancing.",
+        "I still support this position: Distributed renewable systems can improve resilience during disasters."
+      ],
+      "dialogue_partners": {
+        "3": 1,
+        "6": 1,
+        "7": 1
+      }
+    },
+    {
+      "id": 5,
+      "name": "user_005",
+      "age": 75,
+      "initial_state": "Support",
+      "final_state": "Support",
+      "belief_history": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "opinion_history": [
+        "I support this position: Public trust improves when energy strategy reduces high-consequence accident risk.",
+        "I still support this position: I support the transition because social acceptance matters for energy legitimacy.",
+        "I still support this position: Renewable investment can create domestic industry and resilience.",
+        "I still support this position: I support the transition because social acceptance matters for energy legitimacy."
+      ],
+      "dialogue_partners": {
+        "10": 1,
+        "11": 2
+      }
+    },
+    {
+      "id": 6,
+      "name": "user_006",
+      "age": 75,
+      "initial_state": "Oppose",
+      "final_state": "Oppose",
+      "belief_history": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "opinion_history": [
+        "I oppose this position: Policy should optimize reliability, affordability, and emissions together.",
+        "I still oppose this position: Transition should be gradual and technology-neutral.",
+        "I now support this position: A phased reduction is feasible with storage, efficiency, and regional balancing.",
+        "I now oppose this position: Policy should optimize reliability, affordability, and emissions together."
+      ],
+      "dialogue_partners": {
+        "0": 1,
+        "4": 1,
+        "1": 1
+      }
+    },
+    {
+      "id": 7,
+      "name": "user_007",
+      "age": 61,
+      "initial_state": "Oppose",
+      "final_state": "Changed",
+      "belief_history": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "opinion_history": [
+        "I oppose this position: Grid stability risk is too high if dispatchable supply is reduced too quickly.",
+        "I now support this position: Public trust improves when energy strategy reduces high-consequence accident risk.",
+        "I still support this position: Reducing nuclear dependence is necessary for long-term safety and public trust.",
+        "I still support this position: Energy transition reduces systemic risk from large centralized failures."
+      ],
+      "dialogue_partners": {
+        "2": 2,
+        "4": 1
+      }
+    },
+    {
+      "id": 8,
+      "name": "user_008",
+      "age": 60,
+      "initial_state": "Oppose",
+      "final_state": "Oppose",
+      "belief_history": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "opinion_history": [
+        "I oppose this position: Base-load reliability remains a major challenge without sufficient storage capacity.",
+        "I still oppose this position: Replacing stable generation too fast creates operational and fiscal risk.",
+        "I still oppose this position: Base-load reliability remains a major challenge without sufficient storage capacity.",
+        "I still oppose this position: Policy should optimize reliability, affordability, and emissions together."
+      ],
+      "dialogue_partners": {
+        "1": 1,
+        "10": 2
+      }
+    },
+    {
+      "id": 9,
+      "name": "user_009",
+      "age": 61,
+      "initial_state": "Oppose",
+      "final_state": "Oppose",
+      "belief_history": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "opinion_history": [
+        "I oppose this position: A balanced mix should keep nuclear as a transitional pillar.",
+        "I still oppose this position: Grid stability risk is too high if dispatchable supply is reduced too quickly.",
+        "I still oppose this position: Replacing stable generation too fast creates operational and fiscal risk.",
+        "I still oppose this position: Industrial competitiveness may decline if power costs rise too quickly."
+      ],
+      "dialogue_partners": {
+        "11": 1,
+        "1": 1,
+        "2": 1
+      }
+    },
+    {
+      "id": 10,
+      "name": "user_010",
+      "age": 82,
+      "initial_state": "Oppose",
+      "final_state": "Oppose",
+      "belief_history": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "opinion_history": [
+        "I oppose this position: Policy should optimize reliability, affordability, and emissions together.",
+        "I still oppose this position: I oppose aggressive reduction because energy security must remain central.",
+        "I still oppose this position: Replacing stable generation too fast creates operational and fiscal risk.",
+        "I still oppose this position: Policy should optimize reliability, affordability, and emissions together."
+      ],
+      "dialogue_partners": {
+        "5": 1,
+        "8": 2
+      }
+    },
+    {
+      "id": 11,
+      "name": "user_011",
+      "age": 60,
+      "initial_state": "Oppose",
+      "final_state": "Oppose",
+      "belief_history": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "opinion_history": [
+        "I oppose this position: Transition should be gradual and technology-neutral.",
+        "I still oppose this position: Base-load reliability remains a major challenge without sufficient storage capacity.",
+        "I still oppose this position: Transition should be gradual and technology-neutral.",
+        "I still oppose this position: Transition should be gradual and technology-neutral."
+      ],
+      "dialogue_partners": {
+        "9": 1,
+        "5": 2
+      }
+    }
+  ]
+}

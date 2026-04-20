@@ -7,21 +7,66 @@ from user_data import load_real_users
 from prompt import *
 
 def update_day(agent):
-    '''更新代理人的健康状态'''
-    if agent.beliefs[-1] == 1 and agent.health_condition != "Infected":
-        agent.health_condition = "Infected"
-        agent.model.susceptible -= 1
-        agent.model.infected += 1
-        agent.model.daily_new_infected_cases += 1
-    
-    elif agent.beliefs[-1] == 0 and agent.health_condition == "Infected":
-        agent.health_condition = "Recovered"
-        agent.model.infected -= 1
-        agent.model.recovered += 1
-        agent.model.daily_new_recovered_cases += 1
+    """Update a single agent stance state from the latest belief value.
+
+    State semantics:
+    - Support: current belief=1 and unchanged from initial belief
+    - Oppose: current belief=0 and unchanged from initial belief
+    - Changed: current belief differs from initial belief
+    """
+    current_belief = agent.beliefs[-1]
+    initial_belief = agent.initial_belief
+
+    if current_belief != initial_belief:
+        target_state = "Changed"
+    elif current_belief == 1:
+        target_state = "Support"
+    else:
+        target_state = "Oppose"
+
+    old_state = agent.stance_state
+    if old_state == target_state:
+        return
+
+    # Decrement old state counter.
+    if old_state == "Support":
+        agent.model.support -= 1
+    elif old_state == "Oppose":
+        agent.model.oppose -= 1
+    elif old_state == "Changed":
+        agent.model.changed -= 1
+
+    # Increment new state counter and daily transition tracker.
+    if target_state == "Support":
+        agent.model.support += 1
+        agent.model.daily_new_support_cases += 1
+    elif target_state == "Oppose":
+        agent.model.oppose += 1
+        agent.model.daily_new_oppose_cases += 1
+    else:
+        agent.model.changed += 1
+        agent.model.daily_new_changed_cases += 1
+
+    agent.stance_state = target_state
+    if hasattr(agent, "log_behavior"):
+        reason = (
+            "Current belief differs from initial stance."
+            if target_state == "Changed"
+            else f"Current belief aligns with initial {target_state.lower()} stance."
+        )
+        agent.log_behavior(
+            "stance_state_change",
+            {
+                "before": old_state,
+                "after": target_state,
+                "current_belief": current_belief,
+                "initial_belief": initial_belief,
+                "reason": reason,
+            },
+        )
 
 def clear_cache():
-    '''清除缓存文件'''
+    """Remove files under the local cache directory."""
     cache_dir = ".cache"
     if os.path.exists(cache_dir):
         for file in os.listdir(cache_dir):
@@ -57,7 +102,7 @@ def create_social_network(agents, connection_probability=0.2):
     return G
 
 class DialogueState:
-    '''管理对话状态的类'''
+    """Track dialogue-level state shared across both agents in one conversation."""
     def __init__(self, topic, agent1_id, agent2_id):
         self.topic = topic
         self.agent1_id = agent1_id
@@ -75,7 +120,7 @@ class DialogueState:
         self.stop_reason = None
     
     def update_after_turn(self, agent_id, response_data):
-        '''更新对话状态'''
+        """Update dialogue state after one agent response."""
         if agent_id == self.agent1_id:
             self.turn_count += 0.5 
         
@@ -83,11 +128,11 @@ class DialogueState:
             self.stance_strength[agent_id] = response_data["stance_strength"]
         elif "internal_thoughts" in response_data:
             thoughts = response_data["internal_thoughts"].lower()
-            if "坚定" in thoughts or "确信" in thoughts:
+            if "certain" in thoughts or "confident" in thoughts:
                 self.stance_strength[agent_id] = 1.0
-            elif "怀疑" in thoughts or "不确定" in thoughts:
+            elif "doubt" in thoughts or "uncertain" in thoughts:
                 self.stance_strength[agent_id] = 0.5
-            elif "不相信" in thoughts or "反对" in thoughts:
+            elif "disagree" in thoughts or "reject" in thoughts:
                 self.stance_strength[agent_id] = -1.0
         
         if "common_ground" in response_data:
@@ -97,64 +142,74 @@ class DialogueState:
             self.belief_shifts[agent_id] += response_data["belief_shift"]
 
 def should_stop_dialogue(dialogue_state, response1, response2, max_turns=3, convergence_threshold=0.1):
-    '''判断对话是否应该停止'''
-    # 检查最大轮次
+    """Return True when dialogue should stop by turn limit, convergence, or explicit ending."""
     if dialogue_state.turn_count >= max_turns:
-        dialogue_state.stop_reason = "达到最大轮次"
+        dialogue_state.stop_reason = "Maximum turns reached"
         return True
     
-    # 检查对话收敛 - 获取最近一轮的信念变化
     recent_shift1 = abs(response1.get("belief_shift", 0))
     recent_shift2 = abs(response2.get("belief_shift", 0))
     
     if recent_shift1 < convergence_threshold and recent_shift2 < convergence_threshold:
-        dialogue_state.stop_reason = "对话收敛"
+        dialogue_state.stop_reason = "Dialogue converged"
         return True
     
-    # 检查明确的结束信号
-    if "response" in response1 and ("结束" in response1["response"] or "再见" in response1["response"]):
-        dialogue_state.stop_reason = "代理人1明确结束"
+    if "response" in response1 and ("end" in response1["response"].lower() or "goodbye" in response1["response"].lower()):
+        dialogue_state.stop_reason = "Agent 1 explicitly ended"
         return True
     
-    if "response" in response2 and ("结束" in response2["response"] or "再见" in response2["response"]):
-        dialogue_state.stop_reason = "代理人2明确结束"
+    if "response" in response2 and ("end" in response2["response"].lower() or "goodbye" in response2["response"].lower()):
+        dialogue_state.stop_reason = "Agent 2 explicitly ended"
         return True
     
-    # 默认继续对话
     return False
 
-# 计算最终信念变化
 def calculate_final_belief_change(agent, dialogue_state, conversation_history):
-    '''计算对话后的最终信念变化'''
-    # 获取代理人ID
+    """Compute final belief change for an agent from dialogue state and history."""
     agent_id = agent.unique_id
     
-    # 基础信念变化来自对话状态
     belief_change = dialogue_state.belief_shifts.get(agent_id, 0)
     
-    # 分析对话内容进行调整
+    support_shift_phrases = [
+        "i now support",
+        "i support this",
+        "you are right about this policy",
+        "i can accept this position",
+    ]
+    oppose_shift_phrases = [
+        "i now oppose",
+        "i oppose this",
+        "i cannot support this policy",
+        "this argument does not hold",
+    ]
+    conversion_phrases = [
+        "i changed my mind",
+        "you convinced me",
+    ]
+
     for turn in conversation_history:
         if turn["speaker"] == agent.name:
             content = turn["content"].lower()
-            # 检测强烈的信念变化信号
-            if "我改变主意了" in content or "你说服了我" in content:
-                if agent.beliefs[-1] == 1:  # 如果当前相信
-                    belief_change = -1.0  # 强烈的负向变化
-                else:  # 如果当前不相信
-                    belief_change = 1.0  # 强烈的正向变化
+            if any(phrase in content for phrase in conversion_phrases):
+                if agent.beliefs[-1] == 1:
+                    belief_change = -1.0
+                else:
+                    belief_change = 1.0
                 break
+            if any(phrase in content for phrase in support_shift_phrases):
+                belief_change = max(belief_change, 0.6)
+            elif any(phrase in content for phrase in oppose_shift_phrases):
+                belief_change = min(belief_change, -0.6)
     
-    # 根据对话轮次调整变化强度
     if dialogue_state.turn_count < 1:
-        belief_change *= 0.5  # 对话太短，影响减半
+        belief_change *= 0.5
     
     return belief_change
 
-# 格式化对话历史
 def format_dialogue_history(conversation_history):
-    '''将对话历史格式化为字符串'''
+    """Format structured dialogue history into a plain text transcript."""
     if not conversation_history:
-        return "（无对话历史）"
+        return "(No dialogue history)"
     
     formatted = ""
     for turn in conversation_history:
@@ -162,9 +217,8 @@ def format_dialogue_history(conversation_history):
     
     return formatted
 
-# 获取对话摘要
 def get_dialogue_summary(dialogue_content, topic):
-    '''获取对话内容的摘要'''
+    """Summarize dialogue content for memory updates."""
     user_msg = dialogue_summary_prompt.format(
         dialogue_content=dialogue_content,
         topic=topic
@@ -175,14 +229,12 @@ def get_dialogue_summary(dialogue_content, topic):
     
     return response
 
-# 新增：从健康观点生成长期记忆
-def create_memory_from_health_opinion(health_opinion, name):
-    '''从健康观点创建初始长期记忆'''
-    if not health_opinion:
+def create_memory_from_policy_opinion(policy_opinion, name):
+    """Create initial long-term memory text from user policy opinion."""
+    if not policy_opinion:
         return ""
     
-    # 创建一个基于健康观点的长期记忆
-    memory = f"我是{name}，我对健康的看法是：{health_opinion}\n\n"
-    memory += f"这是我基于个人经验和知识形成的观点，我相信这些健康理念。"
+    memory = f"My name is {name}, and my policy view is: {policy_opinion}\n\n"
+    memory += "This view comes from my values, experiences, and understanding of public issues."
     
     return memory

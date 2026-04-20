@@ -1,227 +1,297 @@
-import os
 import json
+import os
 import time
-import random
-from zhipuai import ZhipuAI  # 导入智谱AI客户端
+import urllib.error
+import urllib.request
+
+_API_WARNING_SHOWN = False
+
+
+def _is_placeholder_value(value):
+    text = str(value).strip()
+    if not text:
+        return True
+    upper = text.upper()
+    return upper.startswith("YOUR_") or upper in {"CHANGE_ME", "REPLACE_ME"}
+
 
 def _load_local_secrets():
-    """从本地私密配置文件读取密钥，不纳入版本控制。"""
-    secrets_path = os.path.join(os.path.dirname(__file__), "secrets.local.json")
-    if not os.path.exists(secrets_path):
+    """Load secrets from local file only."""
+    path = os.path.join(os.path.dirname(__file__), "secrets.local.json")
+    if not os.path.exists(path):
         return {}
-
     try:
-        with open(secrets_path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
             if isinstance(data, dict):
                 return data
     except Exception as e:
-        print(f"读取私密配置失败: {e}")
+        print(f"Failed to read local secrets: {e}")
     return {}
 
 
-def _resolve_zhipu_api_key():
-    # 优先环境变量，其次本地私密文件
+def _resolve_deepseek_api_key():
     secrets = _load_local_secrets()
-    return os.getenv("ZHIPUAI_API_KEY") or secrets.get("zhipuai_api_key", "")
+    env_key = os.getenv("DEEPSEEK_API_KEY", "").strip()
+    if env_key and not _is_placeholder_value(env_key):
+        return env_key
+
+    local_key = str(secrets.get("deepseek_api_key", "")).strip()
+    if local_key and not _is_placeholder_value(local_key):
+        return local_key
+    return ""
 
 
-# 初始化智谱AI客户端
-zhipu_client = ZhipuAI(api_key=_resolve_zhipu_api_key())
+def _resolve_deepseek_base_url():
+    secrets = _load_local_secrets()
+    value = os.getenv("DEEPSEEK_BASE_URL") or secrets.get(
+        "deepseek_base_url",
+        "https://api.deepseek.com/chat/completions",
+    )
+    return str(value).strip()
 
-# 使用智谱AI获取响应
-def get_completion_from_messages(messages, model="glm-3-turbo", temperature=0):
-    """使用智谱AI替代OpenAI API"""
-    success = False
+
+def _resolve_default_model():
+    secrets = _load_local_secrets()
+    value = os.getenv("DEEPSEEK_MODEL") or secrets.get("deepseek_model", "deepseek-chat")
+    return str(value).strip()
+
+
+def _resolve_generation_params():
+    secrets = _load_local_secrets()
+    max_tokens_raw = os.getenv("DEEPSEEK_MAX_TOKENS") or secrets.get("deepseek_max_tokens", 512)
+    top_p_raw = os.getenv("DEEPSEEK_TOP_P") or secrets.get("deepseek_top_p", 0.95)
+    try:
+        max_tokens = int(max_tokens_raw)
+    except Exception:
+        max_tokens = 512
+    try:
+        top_p = float(top_p_raw)
+    except Exception:
+        top_p = 0.95
+    max_tokens = max(32, min(4096, max_tokens))
+    top_p = max(0.1, min(1.0, top_p))
+    return max_tokens, top_p
+
+
+def _resolve_endpoint():
+    base_url = _resolve_deepseek_base_url().rstrip("/")
+    if "/chat/completions" in base_url:
+        return base_url
+    return f"{base_url}/chat/completions"
+
+
+def _extract_text_content(message_obj):
+    content = message_obj.get("content")
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "text":
+                parts.append(item.get("text", ""))
+        return "".join(parts)
+    return ""
+
+
+def _is_dialogue_request(messages):
+    if not messages:
+        return False
+    try:
+        content = str(messages[0].get("content", "")).lower()
+    except Exception:
+        return False
+    markers = ["response", "internal_thoughts", "belief_shift", "dialogue", "conversation"]
+    return any(marker in content for marker in markers)
+
+
+def _chat_completion(messages, model=None, temperature=0, max_retries=3):
+    api_key = _resolve_deepseek_api_key()
+    if not api_key:
+        raise RuntimeError("Missing DeepSeek API key. Set DEEPSEEK_API_KEY or deepseek_api_key in secrets.local.json.")
+
+    endpoint = _resolve_endpoint()
+    model_name = model or _resolve_default_model()
+    max_tokens, top_p = _resolve_generation_params()
+
+    payload = {
+        "model": model_name,
+        "messages": messages,
+        "temperature": temperature,
+        "top_p": top_p,
+        "max_tokens": max_tokens,
+        "stream": False,
+    }
+    payload_bytes = json.dumps(payload).encode("utf-8")
+
     retry = 0
-    max_retries = 5
-    while retry < max_retries and not success:
+    last_error = "Unknown error"
+    while retry < max_retries:
         try:
-            # 转换消息格式以适应智谱AI API
-            formatted_messages = []
-            for msg in messages:
-                formatted_messages.append({
-                    "role": msg["role"],
-                    "content": msg["content"]
-                })
-            
-            # 调用智谱AI API
-            response = zhipu_client.chat.completions.create(
-                model=model,
-                messages=formatted_messages,
-                temperature=temperature
+            request = urllib.request.Request(
+                endpoint,
+                data=payload_bytes,
+                headers={
+                    "accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}",
+                },
+                method="POST",
             )
-            success = True
-        except Exception as e:
-            print(f"Error: {e}\nRetrying...")
-            retry += 1
-            time.sleep(0.5)
-
-    if success:
-        return response.choices[0].message.content
-    else:
-        return "无法获取响应，请检查API密钥或网络连接。"
-
-# 使用智谱AI获取JSON格式的响应
-def get_completion_from_messages_json(messages, model="glm-3-turbo", temperature=0):
-    """使用智谱AI替代OpenAI API，并返回JSON格式的响应"""
-    success = False
-    retry = 0
-    max_retries = 30
-    while retry < max_retries and not success:
-        try:
-            # 转换消息格式以适应智谱AI API
-            formatted_messages = []
-            for msg in messages:
-                formatted_messages.append({
-                    "role": msg["role"],
-                    "content": msg["content"]
-                })
-            
-            # 更明确的JSON格式要求，包含所有可能需要的字段
-            formatted_messages.append({
-                "role": "system",
-                "content": """请以JSON格式返回响应，格式必须包含以下字段之一或多个：
-                1. 对于观点更新：
-                   - "tweet": 更新后的观点
-                   - "belief": 信任程度 (0或1)
-                   - "reasoning": 解释原因
-                
-                2. 对于对话响应：
-                   - "response": 对话内容（必须字段）
-                   - "internal_thoughts": 内心想法
-                   - "belief_shift": 信念变化
-                   - "reasoning": 响应原因
-                
-                确保返回的是有效的JSON格式。"""
-            })
-            
-            # 调用智谱AI API
-            response = zhipu_client.chat.completions.create(
-                model=model,
-                messages=formatted_messages,
-                temperature=temperature
-            )
-            success = True
-        except Exception as e:
-            print(f"Error: {e}\nRetrying...")
-            retry += 1
-            time.sleep(0.5)
-
-    if success:
-        content = response.choices[0].message.content
-        # 尝试解析JSON，如果失败则格式化为JSON
-        try:
-            response_data = json.loads(content)
-            
-            # 验证包含必要字段
-            is_dialogue = "response" in messages[0]["content"].lower()
-            if is_dialogue and "response" not in response_data:
-                print("警告：响应缺少'response'字段，添加默认值")
-                response_data["response"] = "我需要进一步思考这个问题。"
-            elif not is_dialogue and "tweet" not in response_data:
-                print("警告：响应缺少'tweet'字段，添加默认值")
-                response_data["tweet"] = "无法形成明确观点。"
-                response_data["belief"] = 0
-                response_data["reasoning"] = "无法解析响应"
-                
-            return json.dumps(response_data)
-        except:
-            # 如果返回的不是有效JSON，尝试提取并格式化
+            with urllib.request.urlopen(request, timeout=45) as response:
+                response_body = response.read().decode("utf-8")
+            response_data = json.loads(response_body)
+            return _extract_text_content(response_data["choices"][0]["message"])
+        except urllib.error.HTTPError as e:
             try:
-                # 查找可能的JSON部分
-                if "{" in content and "}" in content:
-                    json_part = content[content.find("{"):content.rfind("}")+1]
-                    # 尝试解析提取的JSON
-                    response_data = json.loads(json_part)
-                    
-                    # 验证所需字段
-                    is_dialogue = "response" in messages[0]["content"].lower()
-                    if is_dialogue:
-                        if "response" not in response_data:
-                            response_data["response"] = "我在思考这个问题。"
-                    else:
-                        if "tweet" not in response_data:
-                            response_data["tweet"] = "无法形成明确观点。"
-                            response_data["belief"] = 0
-                            response_data["reasoning"] = "解析响应时出现问题"
-                            
-                    return json.dumps(response_data)
-                else:
-                    # 创建一个适合上下文的默认响应
-                    is_dialogue = "dialogue" in messages[0]["content"].lower()
-                    if is_dialogue:
-                        return json.dumps({
-                            "response": "我需要更多时间思考这个问题。",
-                            "internal_thoughts": "无法形成清晰想法",
-                            "belief_shift": 0,
-                            "reasoning": "无法从模型获取有效的JSON响应"
-                        })
-                    else:
-                        return json.dumps({
-                            "tweet": "无法解析响应，这是一个模拟的观点。",
-                            "belief": 0,
-                            "reasoning": "无法从模型获取有效的JSON响应"
-                        })
-            except:
-                # 创建一个适合上下文的默认响应
-                is_dialogue = "dialogue" in messages[0]["content"].lower()
-                if is_dialogue:
-                    return json.dumps({
-                        "response": "无法形成有效回应。",
-                        "internal_thoughts": "处理错误",
-                        "belief_shift": 0,
-                        "reasoning": "JSON解析失败"
-                    })
-                else:
-                    return json.dumps({
-                        "tweet": "无法解析响应，这是一个模拟的推文。",
-                        "belief": 0,
-                        "reasoning": "无法从模型获取有效的JSON响应。"
-                    })
-    else:
-        # API调用失败的默认响应
-        return json.dumps({
-            "response": "无法获取响应，请检查API密钥或网络连接。",
-            "tweet": "无法获取响应，请检查API密钥或网络连接。",
-            "belief": 0,
-            "reasoning": "API调用失败。",
-            "internal_thoughts": "连接问题",
-            "belief_shift": 0
-        })
+                detail = e.read().decode("utf-8")
+            except Exception:
+                detail = str(e)
+            last_error = f"HTTP {e.code}: {detail}"
+            if e.code in {400, 401, 403, 404}:
+                break
+            retry += 1
+            print(f"HTTP Error: {e.code} {detail}\nRetrying...")
+            time.sleep(0.5)
+        except Exception as e:
+            last_error = str(e)
+            retry += 1
+            print(f"Error: {e}\nRetrying...")
+            time.sleep(0.5)
 
-# 获取短期记忆摘要
+    return f"Unable to get response. {last_error}"
+
+
+def get_completion_from_messages(messages, model=None, temperature=0):
+    global _API_WARNING_SHOWN
+    try:
+        return _chat_completion(messages=messages, model=model, temperature=temperature, max_retries=3)
+    except RuntimeError as e:
+        if not _API_WARNING_SHOWN:
+            print(f"Warning: {e} Falling back to local placeholder responses.")
+            _API_WARNING_SHOWN = True
+        return "Model unavailable. Fallback summary generated locally."
+
+
+def get_completion_from_messages_json(messages, model=None, temperature=0):
+    formatted_messages = list(messages)
+    formatted_messages.append(
+        {
+            "role": "system",
+            "content": """Return valid JSON. Include one of the following schemas:
+                1) Opinion update:
+                   - "tweet": updated opinion
+                   - "belief": stance value (1=Support, 0=Oppose)
+                   - "reasoning": short reason
+
+                2) Dialogue response:
+                   - "response": dialogue text (required)
+                   - "internal_thoughts": internal thoughts
+                   - "belief_shift": belief shift
+                   - "reasoning": response reason
+                """,
+        }
+    )
+    is_dialogue = _is_dialogue_request(messages)
+
+    try:
+        content = _chat_completion(
+            messages=formatted_messages,
+            model=model,
+            temperature=temperature,
+            max_retries=3,
+        )
+    except RuntimeError as e:
+        global _API_WARNING_SHOWN
+        if not _API_WARNING_SHOWN:
+            print(f"Warning: {e} Falling back to local placeholder responses.")
+            _API_WARNING_SHOWN = True
+        content = ""
+
+    try:
+        response_data = json.loads(content)
+        if is_dialogue and "response" not in response_data:
+            response_data["response"] = "I need more time to think about this."
+        elif not is_dialogue and "tweet" not in response_data:
+            response_data["tweet"] = "Unable to form a clear opinion."
+            response_data["belief"] = 0
+            response_data["reasoning"] = "Failed to parse response."
+        return json.dumps(response_data)
+    except Exception:
+        try:
+            if "{" in content and "}" in content:
+                json_part = content[content.find("{"):content.rfind("}") + 1]
+                response_data = json.loads(json_part)
+                if is_dialogue:
+                    if "response" not in response_data:
+                        response_data["response"] = "I am still thinking about this."
+                else:
+                    if "tweet" not in response_data:
+                        response_data["tweet"] = "Unable to form a clear opinion."
+                        response_data["belief"] = 0
+                        response_data["reasoning"] = "Error while parsing response."
+                return json.dumps(response_data)
+
+            if is_dialogue:
+                return json.dumps(
+                    {
+                        "response": "I need more time to think about this.",
+                        "internal_thoughts": "I cannot form a clear thought yet.",
+                        "belief_shift": 0,
+                        "reasoning": "Model did not return valid JSON.",
+                    }
+                )
+            return json.dumps(
+                {
+                    "tweet": "Unable to parse response. This is a fallback opinion.",
+                    "belief": 0,
+                    "reasoning": "Model did not return valid JSON.",
+                }
+            )
+        except Exception:
+            if is_dialogue:
+                return json.dumps(
+                    {
+                        "response": "Unable to generate a valid response.",
+                        "internal_thoughts": "Processing error.",
+                        "belief_shift": 0,
+                        "reasoning": "JSON parsing failed.",
+                    }
+                )
+            return json.dumps(
+                {
+                    "tweet": "Unable to parse response. This is a fallback tweet.",
+                    "belief": 0,
+                    "reasoning": "Model did not return valid JSON.",
+                }
+            )
+
+
 def get_summary_short(opinions, topic):
     if not opinions:
-        return "没有收集到其他人的观点。"
-    
+        return "No opinions were collected from others."
+
     user_msg = f"""
-    请总结以下关于"{topic}"的观点，简明扼要地提取关键信息：
+    Summarize the following opinions about "{topic}" and extract key points concisely:
 
     {opinions}
     """
-    
-    msg = [{"role": "user", "content": user_msg}]
-    response = get_completion_from_messages(msg, temperature=0.5)
-    
-    return response
 
-# 获取长期记忆摘要
+    msg = [{"role": "user", "content": user_msg}]
+    return get_completion_from_messages(msg, temperature=0.5)
+
+
 def get_summary_long(long_mem, short_mem):
     if not long_mem:
         return short_mem
-    
+
     user_msg = f"""
-    请将以下两段内容整合为一个连贯的摘要，保留关键信息：
+    Integrate the two texts below into one coherent summary while preserving key information:
 
-    长期记忆：{long_mem}
-    
-    新信息：{short_mem}
+    Long-term memory: {long_mem}
+
+    New information: {short_mem}
     """
-    
-    msg = [{"role": "user", "content": user_msg}]
-    response = get_completion_from_messages(msg, temperature=0.5)
-    
-    return response
 
-# 话题相关句子
+    msg = [{"role": "user", "content": user_msg}]
+    return get_completion_from_messages(msg, temperature=0.5)

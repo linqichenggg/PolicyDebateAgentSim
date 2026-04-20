@@ -1,0 +1,101 @@
+user_id,username,description,education,openness,conscientiousness,extraversion,agreeableness,neuroticism,policy_opinion,party_affiliation,ideology_score,issue_interest
+0,user_000,Interested in social policy,university,high,medium,medium,high,low,I support stronger social welfare spending,party_a,-0.8,high
+1,user_001,Follows economic debates,college,medium,high,low,medium,medium,I oppose broad welfare expansion without budget reform,party_b,0.7,high
+2,user_002,Community volunteer,high_school,high,medium,high,high,low,I support local government support programs,independent,-0.4,medium
+3,user_003,Small business owner,university,medium,high,medium,low,medium,I oppose tax increases tied to social programs,party_b,0.8,high
+4,user_004,Policy enthusiast,graduate,high,high,medium,medium,low,I support phased public healthcare expansion,party_a,-0.6,high
+5,user_005,Works in finance,university,medium,high,low,medium,medium,I oppose aggressive fiscal stimulus plans,party_b,0.6,medium
+6,user_006,Reads parliament summaries,college,high,medium,medium,high,low,I support better childcare subsidies,independent,-0.3,high
+7,user_007,Interested in labor policy,graduate,medium,high,high,medium,medium,I oppose mandatory labor market controls,party_b,0.5,high
+8,user_008,Public sector worker,university,high,medium,medium,high,low,I support stronger public housing policy,party_a,-0.7,high
+9,user_009,Freelancer,high_school,medium,medium,high,medium,medium,I oppose large central government intervention,independent,0.3,medium
+10,user_010,Student observer,college,high,low,high,high,medium,I support affordable education policy,party_a,-0.5,high
+11,user_011,Retired engineer,university,medium,high,low,medium,low,I oppose expanding debt-financed benefits,party_b,0.7,medium
+12,user_012,Neighborhood organizer,high_school,high,medium,high,high,low,I support stronger local welfare offices,independent,-0.4,medium
+13,user_013,Office worker,college,medium,high,medium,medium,medium,I oppose rapid pension benefit increases,party_b,0.4,high
+14,user_014,Healthcare staff,graduate,high,high,medium,high,low,I support preventive care investment,party_a,-0.6,high
+15,user_015,IT contractor,university,medium,medium,medium,low,medium,I oppose uniform national policy mandates,independent,0.2,medium
+16,user_016,Teacher,graduate,high,high,medium,high,low,I support stronger school meal programs,party_a,-0.5,high
+17,user_017,Sales manager,college,medium,high,high,medium,medium,I oppose higher payroll taxes,party_b,0.6,high
+18,user_018,Urban planner,graduate,high,high,low,high,low,I support long-term social infrastructure,party_a,-0.7,high
+19,user_019,Factory worker,high_school,medium,medium,medium,medium,high,I oppose regulatory overreach in labor policy,independent,0.2,medium
+20,user_020,Civic forum participant,college,high,medium,high,high,low,I support community clinic expansion,party_a,-0.4,high
+21,user_021,Accountant,university,low,high,low,medium,medium,I oppose broad spending growth without cuts,party_b,0.8,high
+22,user_022,Library volunteer,high_school,high,medium,medium,high,low,I support inclusive public service design,independent,-0.3,medium
+23,user_023,Startup founder,graduate,high,high,high,low,medium,I oppose excessive compliance burdens,party_b,0.5,high
+24,user_024,Social worker,college,high,medium,high,high,low,I support targeted income assistance,party_a,-0.6,high
+25,user_025,Taxi driver,high_school,medium,medium,high,medium,high,I oppose fuel tax increases,independent,0.3,medium
+26,user_026,University researcher,graduate,high,high,low,high,low,I support evidence-based welfare reforms,party_a,-0.5,high
+27,user_027,Retail supervisor,college,medium,high,medium,medium,medium,I oppose expanding unemployment payouts,party_b,0.4,high
+28,user_028,Parent advocate,high_school,high,medium,high,high,low,I support better parental leave policy,independent,-0.4,high
+29,user_029,Corporate analyst,university,medium,high,low,medium,medium,I oppose higher capital taxation,party_b,0.7,high
+30,user_030,City council watcher,college,high,medium,medium,high,low,I support local subsidy pilots,party_a,-0.3,medium
+31,user_031,Mechanic,high_school,low,medium,medium,medium,high,I oppose mandatory welfare contributions,independent,0.4,medium
+32,user_032,Youth mentor,college,high,medium,high,high,low,I support after-school program funding,party_a,-0.5,high
+33,user_033,Investment advisor,graduate,medium,high,medium,low,medium,I oppose inflationary fiscal expansion,party_b,0.8,high
+34,user_034,Public health student,university,high,medium,high,high,low,I support stronger preventive policy frameworks,party_a,-0.6,high
+35,user_035,Restaurant owner,high_school,medium,high,high,medium,medium,I oppose higher social insurance premiums,independent,0.3,high
+36,user_036,Nonprofit staff,college,high,medium,medium,high,low,I support targeted anti-poverty programs,party_a,-0.5,high
+37,user_037,Transport planner,graduate,high,high,low,high,low,I oppose blanket subsidy expansion,party_b,0.2,medium
+38,user_038,Bookstore clerk,high_school,medium,medium,high,high,medium,I support stronger housing assistance,independent,-0.3,medium
+39,user_039,Bank employee,university,low,high,medium,medium,low,I oppose deficit-heavy policy packages,party_b,0.7,high
+40,user_040,Community college student,college,high,low,high,high,medium,I support tuition support expansion,party_a,-0.4,high
+41,user_041,Engineer,graduate,medium,high,low,medium,low,I oppose indiscriminate benefit expansion,party_b,0.6,medium
+42,user_042,Neighborhood parent,high_school,high,medium,medium,high,low,I support child allowance reform,independent,-0.2,high
+43,user_043,Consultant,university,medium,high,high,low,medium,I oppose administrative over-centralization,party_b,0.5,high
+44,user_044,Public librarian,college,high,medium,low,high,low,I support improved public service access,party_a,-0.5,medium
+45,user_045,Construction worker,high_school,low,medium,high,medium,high,I oppose new payroll deductions,independent,0.2,medium
+46,user_046,Civil servant,graduate,high,high,medium,high,low,I support modernized welfare delivery,party_a,-0.4,high
+47,user_047,Market vendor,high_school,medium,medium,high,medium,medium,I oppose higher compliance costs on small shops,independent,0.3,high
+48,user_048,PhD candidate,graduate,high,high,low,high,low,I support robust social investment policy,party_a,-0.7,high
+49,user_049,Insurance agent,college,medium,high,medium,low,medium,I oppose universal program expansion,party_b,0.5,high
+50,user_050,Volunteer coach,high_school,high,medium,high,high,low,I support youth welfare incentives,independent,-0.3,medium
+51,user_051,Operations manager,university,medium,high,medium,medium,low,I oppose broad tax-funded transfers,party_b,0.6,high
+52,user_052,Caregiver,college,high,medium,medium,high,medium,I support better elder support policy,party_a,-0.5,high
+53,user_053,Warehouse staff,high_school,low,medium,high,medium,high,I oppose higher labor taxes,independent,0.3,medium
+54,user_054,Urban policy intern,college,high,medium,high,high,low,I support mixed public-private welfare models,party_a,-0.2,high
+55,user_055,Financial controller,graduate,medium,high,low,medium,low,I oppose unsustainable spending commitments,party_b,0.8,high
+56,user_056,School counselor,graduate,high,high,medium,high,low,I support expanded student assistance,party_a,-0.6,high
+57,user_057,Freight driver,high_school,low,medium,high,medium,high,I oppose high-cost pension changes,independent,0.2,medium
+58,user_058,Citizen panel member,college,high,medium,medium,high,low,I support stronger local participation budgets,independent,-0.2,high
+59,user_059,Legal assistant,university,medium,high,medium,medium,medium,I oppose rushed constitutional policy shifts,party_b,0.4,high
+60,user_060,Nurse,college,high,high,medium,high,medium,I support preventive public care policy,party_a,-0.5,high
+61,user_061,Shop owner,high_school,medium,medium,high,low,medium,I oppose additional small-business tax burdens,independent,0.4,high
+62,user_062,Policy blogger,graduate,high,medium,high,medium,low,I support transparent welfare evaluation,party_a,-0.3,high
+63,user_063,Corporate lawyer,graduate,medium,high,low,low,medium,I oppose rapid regulatory expansion,party_b,0.7,high
+64,user_064,Community nurse,college,high,high,medium,high,low,I support local preventive health grants,party_a,-0.4,high
+65,user_065,Delivery worker,high_school,low,medium,high,medium,high,I oppose forced contribution increases,independent,0.3,medium
+66,user_066,Art teacher,college,high,medium,high,high,low,I support education equity measures,party_a,-0.5,high
+67,user_067,Tax consultant,university,medium,high,medium,medium,low,I oppose broad redistributive tax policy,party_b,0.6,high
+68,user_068,City volunteer,high_school,high,medium,medium,high,low,I support municipal social support hubs,independent,-0.3,medium
+69,user_069,Factory supervisor,college,medium,high,medium,medium,medium,I oppose sudden labor law expansions,party_b,0.4,high
+70,user_070,Research assistant,graduate,high,high,low,high,low,I support data-driven policy adaptation,party_a,-0.4,high
+71,user_071,Farm cooperative member,high_school,medium,medium,high,high,medium,I oppose one-size-fits-all subsidy policy,independent,0.2,medium
+72,user_072,Youth worker,college,high,medium,high,high,low,I support broader youth job support,party_a,-0.5,high
+73,user_073,Procurement officer,university,medium,high,low,medium,medium,I oppose centralization of local funds,party_b,0.3,high
+74,user_074,Graduate student,graduate,high,medium,high,high,medium,I support civic participation incentives,independent,-0.2,high
+75,user_075,Hotel manager,college,medium,high,high,medium,medium,I oppose additional business levies,party_b,0.5,high
+76,user_076,Case worker,college,high,high,medium,high,low,I support better social case management,party_a,-0.4,high
+77,user_077,Freelance designer,high_school,high,low,high,medium,medium,I oppose rigid labor regulation,independent,0.1,medium
+78,user_078,Public administration student,university,high,medium,medium,high,low,I support stronger local governance policy,party_a,-0.3,high
+79,user_079,Manufacturing technician,college,medium,high,medium,medium,medium,I oppose payroll-funded benefit hikes,party_b,0.4,medium
+80,user_080,Civic meetup organizer,high_school,high,medium,high,high,low,I support neighborhood support grants,independent,-0.2,high
+81,user_081,Senior auditor,graduate,low,high,low,medium,low,I oppose debt-heavy policy platforms,party_b,0.8,high
+82,user_082,Kindergarten teacher,college,high,high,medium,high,low,I support expanded childcare access,party_a,-0.5,high
+83,user_083,Insurance claims analyst,university,medium,high,low,medium,medium,I oppose broad universal entitlements,party_b,0.6,high
+84,user_084,Local media contributor,high_school,high,medium,high,medium,medium,I support transparent policy communication,independent,-0.1,medium
+85,user_085,Civil engineering student,college,high,medium,medium,high,low,I oppose inefficient public mega-spending,party_b,0.2,high
+86,user_086,Hospital admin,graduate,medium,high,medium,high,low,I support practical welfare delivery reforms,party_a,-0.4,high
+87,user_087,Courier,high_school,low,medium,high,medium,high,I oppose additional deductions from wages,independent,0.3,medium
+88,user_088,Policy podcast listener,college,high,medium,high,high,medium,I support broader participatory budgeting,independent,-0.2,high
+89,user_089,Private sector manager,university,medium,high,medium,low,medium,I oppose frequent policy reversals,party_b,0.5,high
+90,user_090,Clinic volunteer,high_school,high,medium,medium,high,low,I support expanded preventive initiatives,party_a,-0.3,high
+91,user_091,Trade apprentice,college,medium,medium,high,medium,medium,I oppose larger mandatory contributions,independent,0.2,medium
+92,user_092,Public policy student,graduate,high,high,medium,high,low,I support evidence-led social policy,party_a,-0.4,high
+93,user_093,Compliance officer,university,medium,high,low,medium,low,I oppose unchecked budget expansion,party_b,0.7,high
+94,user_094,Neighborhood mediator,high_school,high,medium,high,high,low,I support mediation-focused policy design,independent,-0.2,medium
+95,user_095,Retail owner,college,medium,high,high,low,medium,I oppose broad tax increases on consumption,party_b,0.4,high
+96,user_096,Student union member,university,high,medium,high,high,medium,I support stronger youth representation,party_a,-0.3,high
+97,user_097,Administrative clerk,college,medium,high,medium,medium,medium,I oppose excessive procedural complexity,independent,0.1,medium
+98,user_098,Public service exam candidate,graduate,high,high,low,high,low,I support accountable welfare implementation,party_a,-0.4,high
+99,user_099,Logistics planner,university,medium,high,medium,medium,low,I oppose higher operating levies,party_b,0.5,high
