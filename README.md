@@ -1,11 +1,11 @@
-# Political Debate Multi-Agent Simulation
+# PolicyDebateAgentSim
 
 This project simulates multi-round political stance discussions among agents and tracks stance dynamics with three states:
 - `Support`
 - `Oppose`
 - `Changed`
 
-It is adapted from a health-misinformation simulation into a policy debate setting.
+It is adapted from an earlier multi-agent simulation baseline into a policy debate setting.
 
 ## 1. Project Structure
 
@@ -22,7 +22,7 @@ It is adapted from a health-misinformation simulation into a policy debate setti
 From project root:
 
 ```bash
-cd /Users/lqcmacmini/code/anything/HealthMisinformationSim
+cd /Users/lqcmacmini/code/anything/PolicyDebateAgentSim
 ```
 
 Install dependencies:
@@ -83,8 +83,8 @@ Common optional columns:
 ### Quick Smoke Test
 
 ```bash
-python -u /Users/lqcmacmini/code/anything/HealthMisinformationSim/multi-rounds/main.py \
-  --user_data_file /Users/lqcmacmini/code/anything/HealthMisinformationSim/users.csv \
+python -u /Users/lqcmacmini/code/anything/PolicyDebateAgentSim/multi-rounds/main.py \
+  --user_data_file /Users/lqcmacmini/code/anything/PolicyDebateAgentSim/users.csv \
   --no_days 1 \
   --no_init_support 10 \
   --no_init_oppose 10 \
@@ -94,8 +94,8 @@ python -u /Users/lqcmacmini/code/anything/HealthMisinformationSim/multi-rounds/m
 ### Standard Run
 
 ```bash
-python -u /Users/lqcmacmini/code/anything/HealthMisinformationSim/multi-rounds/main.py \
-  --user_data_file /Users/lqcmacmini/code/anything/HealthMisinformationSim/users.csv \
+python -u /Users/lqcmacmini/code/anything/PolicyDebateAgentSim/multi-rounds/main.py \
+  --user_data_file /Users/lqcmacmini/code/anything/PolicyDebateAgentSim/users.csv \
   --no_days 10 \
   --no_init_support 70 \
   --no_init_oppose 30 \
